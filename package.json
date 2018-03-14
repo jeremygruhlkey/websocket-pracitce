@@ -1,0 +1,27 @@
+{
+  "name": "websocket-pracitce",
+  "version": "1.0.0",
+  "description": "a practice exercise with websockets",
+  "main": "index.js",
+  "scripts": {
+    "start": "server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremygruhlkey/websocket-pracitce.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jeremygruhlkey/websocket-pracitce/issues"
+  },
+  "homepage": "https://github.com/jeremygruhlkey/websocket-pracitce#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "socket.io": "^2.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.2"
+  }
+}
