@@ -31,10 +31,11 @@ io.on('connection', function(socket){
 
 // Listen to the channel's messages
 IEXsocket.on('message', message => {
-    // for(var key in message){
-        data= JSON.parse(message)
-        console.log("Symbol: " + data.symbol + ", Price: " + data.lastSalePrice)
-    // }
+        let data= JSON.parse(message)
+        let symbol = data.symbol;
+        let lastPrice = data.lastSalePrice;
+        console.log("Symbol: " + symbol + ", Price: " + lastPrice)
+        io.sockets.emit("broadcast", {description: "price " + lastPrice});
 })
 
 // Connect to the channel
