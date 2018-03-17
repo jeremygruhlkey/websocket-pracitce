@@ -1,9 +1,8 @@
 var express = require('express');
 var socket = require('socket.io');
 
-//
+// This socket connects the server to the API.
 const IEXsocket = require('socket.io-client')('https://ws-api.iextrading.com/1.0/tops')
-//
 
 var app = express();
 
@@ -16,7 +15,7 @@ var server = app.listen(PORT, function() {
 app.use(express.static('public'));
 
 // Socket setup 
-
+// this socket connects the server to the clients
 var io = socket(server);
 
   // listens for a connection and calls the connection method
@@ -34,7 +33,7 @@ IEXsocket.on('message', message => {
         let data= JSON.parse(message)
         let symbol = data.symbol;
         let lastPrice = data.lastSalePrice;
-        console.log("Symbol: " + symbol + ", Price: " + lastPrice)
+        // console.log("Symbol: " + symbol + ", Price: " + lastPrice)
         io.sockets.emit("broadcast", {description: "price " + lastPrice});
 })
 
@@ -50,3 +49,24 @@ IEXsocket.on('connect', () => {
 
 // Disconnect from the channel
 IEXsocket.on('disconnect', () => console.log('Disconnected.'))
+
+// issues start here
+app.get("/api/stocks/:stock", function(req, res) {
+    let stock = req.params.stock
+    let userSocket = require('socket.io-client')('https://ws-api.iextrading.com/1.0/tops?symbols=SNAP')
+    // console.log(userSocket);
+    res.json(stock);
+    userSocket.on('response', response => {
+        let data = JSON.parse(response);
+        console.log(data);
+        let symbol = data.symbol;
+        let lastPrice = data.lastSalePrice;
+        console.log("Symbol: " + symbol + ", Price: " + lastPrice)
+        io.sockets.emit("portfolio", {description: "price " + lastPrice});
+    
+    })
+    userSocket.on('connect', () => {
+        console.log("userSocket connected");
+        })
+   
+})

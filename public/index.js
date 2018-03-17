@@ -4,5 +4,9 @@
 var socket = io.connect('http://localhost:3000');
 
 socket.on("broadcast", function(data){
+    // console.log(data);
+})
+
+socket.on("portfolio", function(data){
     console.log(data);
 })
