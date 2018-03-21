@@ -10,7 +10,7 @@ var PORT = 3000;
 
 var server = app.listen(PORT, function() {
     console.log('App listening on PORT ' + PORT);
-  });
+});
 
 app.use(express.static('public'));
 
@@ -23,24 +23,39 @@ var io = socket(server);
   // socket referring to the socket between the server and THAT client
 io.on('connection', function(socket){
     console.log("Made socket connection " + socket.id);
-
+    // here an below sets up a new user specific IEX connection 
+    // subscribes to stocks from variable
+    // and delivers the result to the client
     var iex = require("socket.io-client")('https://ws-api.iextrading.com/1.0/tops');
 
+    //receives "loggedin" emit from index.js
     socket.on("loggedin", (user) => {
         const { id, stocks} = user;
+        console.log(stocks);
+        // will send out message back through socket when subscription data received from below
+        iex.on('message', message => {
+            let data= JSON.parse(message)
+            // console.log(message);
+            let symbol = data.symbol;
+            let lastPrice = data.lastSalePrice;
+            console.log("Symbol: " + symbol + ", Price: " + lastPrice)
+            // setInterval(() => {
+            socket.emit("portfolio", {name: symbol, price: + lastPrice});
+            // }), 1000
+        })
 
-        //connect to the channel
+        //connect to the channel, and subscribe to the stocks sent in user
         iex.on("connect", () => {
             iex.emit("subscribe", stocks.join(",")) //will be dynamic data from db
+            // below was hard coded practice data 
+            // var newData = {
+            //     stocks,
+            //     money: stocks.length * 100
+            // }
 
-            var newData = {
-                stocks,
-                money: stocks.length * 100
-            }
-
-            setInterval(() => {
-                socket.emit("newData", newData)
-            }, 3000);
+            // setInterval(() => {
+            //     socket.emit("newData", newData)
+            // }, 3000);
         })
 
         // iex.on("message", message => {
@@ -54,6 +69,7 @@ io.on('connection', function(socket){
 
     socket.on('disconnect', function(){
         console.log('user disconnected');
+        iex.close();
     });
 });
 
@@ -62,7 +78,7 @@ IEXsocket.on('message', message => {
         let data= JSON.parse(message)
         let symbol = data.symbol;
         let lastPrice = data.lastSalePrice;
-        console.log("Symbol: " + symbol + ", Price: " + lastPrice)
+        // console.log("Symbol: " + symbol + ", Price: " + lastPrice)
         io.sockets.emit("broadcast", {description: "price " + lastPrice});
 })
 
